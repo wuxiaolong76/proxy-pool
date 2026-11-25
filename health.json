@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-11-25T10:46:21.317090+08:00",
+  "generated_at": "2026-11-25T10:54:02.737867+08:00",
   "countries": {
     "AE": {
       "name": "阿联酋",
-      "tested": 20,
+      "tested": 22,
       "healthy": 2,
       "kept": 5,
       "fallback": 3
@@ -18,8 +18,8 @@
     "AL": {
       "name": "阿尔巴尼亚",
       "tested": 16,
-      "healthy": 6,
-      "kept": 9,
+      "healthy": 12,
+      "kept": 15,
       "fallback": 3
     },
     "AM": {
@@ -39,15 +39,15 @@
     "AT": {
       "name": "奥地利",
       "tested": 20,
-      "healthy": 3,
-      "kept": 6,
+      "healthy": 6,
+      "kept": 9,
       "fallback": 3
     },
     "AU": {
       "name": "澳大利亚",
-      "tested": 64,
-      "healthy": 1,
-      "kept": 4,
+      "tested": 69,
+      "healthy": 3,
+      "kept": 6,
       "fallback": 3
     },
     "AZ": {
@@ -60,22 +60,22 @@
     "BA": {
       "name": "BA",
       "tested": 2,
-      "healthy": 0,
+      "healthy": 2,
       "kept": 2,
-      "fallback": 2
+      "fallback": 0
     },
     "BE": {
       "name": "比利时",
       "tested": 35,
-      "healthy": 1,
-      "kept": 4,
+      "healthy": 3,
+      "kept": 6,
       "fallback": 3
     },
     "BG": {
       "name": "保加利亚",
-      "tested": 23,
-      "healthy": 7,
-      "kept": 10,
+      "tested": 28,
+      "healthy": 13,
+      "kept": 16,
       "fallback": 3
     },
     "BH": {
@@ -88,8 +88,8 @@
     "BR": {
       "name": "巴西",
       "tested": 29,
-      "healthy": 6,
-      "kept": 9,
+      "healthy": 9,
+      "kept": 12,
       "fallback": 3
     },
     "BY": {
@@ -108,16 +108,16 @@
     },
     "CA": {
       "name": "加拿大",
-      "tested": 139,
-      "healthy": 48,
-      "kept": 51,
+      "tested": 164,
+      "healthy": 82,
+      "kept": 85,
       "fallback": 3
     },
     "CH": {
       "name": "瑞士",
       "tested": 40,
-      "healthy": 17,
-      "kept": 20,
+      "healthy": 26,
+      "kept": 29,
       "fallback": 3
     },
     "CL": {
@@ -130,15 +130,15 @@
     "CM": {
       "name": "CM",
       "tested": 1,
-      "healthy": 0,
+      "healthy": 1,
       "kept": 1,
-      "fallback": 1
+      "fallback": 0
     },
     "CN": {
       "name": "中国",
       "tested": 88,
-      "healthy": 1,
-      "kept": 4,
+      "healthy": 10,
+      "kept": 13,
       "fallback": 3
     },
     "CW": {
@@ -157,24 +157,24 @@
     },
     "CZ": {
       "name": "捷克",
-      "tested": 25,
-      "healthy": 3,
-      "kept": 6,
+      "tested": 26,
+      "healthy": 10,
+      "kept": 13,
       "fallback": 3
     },
     "DE": {
       "name": "德国",
-      "tested": 518,
-      "healthy": 102,
-      "kept": 105,
+      "tested": 562,
+      "healthy": 146,
+      "kept": 149,
       "fallback": 3
     },
     "DK": {
       "name": "丹麦",
-      "tested": 6,
-      "healthy": 2,
-      "kept": 5,
-      "fallback": 3
+      "tested": 7,
+      "healthy": 5,
+      "kept": 7,
+      "fallback": 2
     },
     "DO": {
       "name": "多米尼加",
@@ -186,43 +186,43 @@
     "EC": {
       "name": "厄瓜多尔",
       "tested": 1,
-      "healthy": 0,
+      "healthy": 1,
       "kept": 1,
-      "fallback": 1
+      "fallback": 0
     },
     "EE": {
       "name": "爱沙尼亚",
-      "tested": 13,
-      "healthy": 1,
-      "kept": 4,
+      "tested": 15,
+      "healthy": 4,
+      "kept": 7,
       "fallback": 3
     },
     "ES": {
       "name": "西班牙",
-      "tested": 51,
-      "healthy": 27,
-      "kept": 30,
+      "tested": 54,
+      "healthy": 33,
+      "kept": 36,
       "fallback": 3
     },
     "FI": {
       "name": "芬兰",
-      "tested": 58,
+      "tested": 63,
       "healthy": 4,
       "kept": 7,
       "fallback": 3
     },
     "FR": {
       "name": "法国",
-      "tested": 496,
-      "healthy": 94,
-      "kept": 97,
+      "tested": 505,
+      "healthy": 114,
+      "kept": 117,
       "fallback": 3
     },
     "GB": {
       "name": "英国",
-      "tested": 198,
-      "healthy": 62,
-      "kept": 65,
+      "tested": 203,
+      "healthy": 84,
+      "kept": 87,
       "fallback": 3
     },
     "GE": {
@@ -234,31 +234,31 @@
     },
     "GR": {
       "name": "希腊",
-      "tested": 6,
-      "healthy": 0,
+      "tested": 7,
+      "healthy": 3,
       "kept": 6,
-      "fallback": 6
+      "fallback": 3
     },
     "HK": {
       "name": "香港",
-      "tested": 120,
-      "healthy": 23,
-      "kept": 26,
+      "tested": 135,
+      "healthy": 33,
+      "kept": 36,
       "fallback": 3
     },
     "HR": {
       "name": "克罗地亚",
       "tested": 5,
-      "healthy": 1,
-      "kept": 4,
-      "fallback": 3
+      "healthy": 4,
+      "kept": 5,
+      "fallback": 1
     },
     "HU": {
       "name": "匈牙利",
       "tested": 3,
-      "healthy": 0,
+      "healthy": 1,
       "kept": 3,
-      "fallback": 3
+      "fallback": 2
     },
     "ID": {
       "name": "印尼",
@@ -269,23 +269,23 @@
     },
     "IE": {
       "name": "爱尔兰",
-      "tested": 32,
-      "healthy": 7,
-      "kept": 10,
+      "tested": 31,
+      "healthy": 11,
+      "kept": 14,
       "fallback": 3
     },
     "IL": {
       "name": "以色列",
       "tested": 9,
-      "healthy": 4,
-      "kept": 7,
-      "fallback": 3
+      "healthy": 7,
+      "kept": 9,
+      "fallback": 2
     },
     "IN": {
       "name": "印度",
-      "tested": 14,
-      "healthy": 1,
-      "kept": 4,
+      "tested": 15,
+      "healthy": 3,
+      "kept": 6,
       "fallback": 3
     },
     "IQ": {
@@ -297,30 +297,30 @@
     },
     "IR": {
       "name": "伊朗",
-      "tested": 148,
+      "tested": 180,
       "healthy": 0,
-      "kept": 148,
-      "fallback": 148
+      "kept": 180,
+      "fallback": 180
     },
     "IS": {
       "name": "冰岛",
       "tested": 3,
-      "healthy": 0,
+      "healthy": 2,
       "kept": 3,
-      "fallback": 3
+      "fallback": 1
     },
     "IT": {
       "name": "意大利",
       "tested": 46,
-      "healthy": 21,
-      "kept": 24,
+      "healthy": 26,
+      "kept": 29,
       "fallback": 3
     },
     "JP": {
       "name": "日本",
-      "tested": 181,
-      "healthy": 28,
-      "kept": 31,
+      "tested": 195,
+      "healthy": 43,
+      "kept": 46,
       "fallback": 3
     },
     "KG": {
@@ -332,9 +332,9 @@
     },
     "KR": {
       "name": "韩国",
-      "tested": 85,
-      "healthy": 17,
-      "kept": 20,
+      "tested": 84,
+      "healthy": 18,
+      "kept": 21,
       "fallback": 3
     },
     "KW": {
@@ -368,15 +368,15 @@
     "LU": {
       "name": "卢森堡",
       "tested": 14,
-      "healthy": 2,
-      "kept": 5,
+      "healthy": 3,
+      "kept": 6,
       "fallback": 3
     },
     "LV": {
       "name": "拉脱维亚",
-      "tested": 34,
-      "healthy": 9,
-      "kept": 12,
+      "tested": 31,
+      "healthy": 12,
+      "kept": 15,
       "fallback": 3
     },
     "MD": {
@@ -417,15 +417,15 @@
     "MX": {
       "name": "墨西哥",
       "tested": 13,
-      "healthy": 10,
+      "healthy": 11,
       "kept": 13,
-      "fallback": 3
+      "fallback": 2
     },
     "MY": {
       "name": "马来西亚",
-      "tested": 7,
-      "healthy": 1,
-      "kept": 4,
+      "tested": 8,
+      "healthy": 3,
+      "kept": 6,
       "fallback": 3
     },
     "NG": {
@@ -437,9 +437,9 @@
     },
     "NL": {
       "name": "荷兰",
-      "tested": 341,
-      "healthy": 110,
-      "kept": 113,
+      "tested": 348,
+      "healthy": 134,
+      "kept": 137,
       "fallback": 3
     },
     "NO": {
@@ -472,37 +472,37 @@
     },
     "PL": {
       "name": "波兰",
-      "tested": 72,
-      "healthy": 27,
-      "kept": 30,
+      "tested": 81,
+      "healthy": 28,
+      "kept": 31,
       "fallback": 3
     },
     "PT": {
       "name": "葡萄牙",
       "tested": 4,
-      "healthy": 1,
+      "healthy": 4,
       "kept": 4,
-      "fallback": 3
+      "fallback": 0
     },
     "RO": {
       "name": "罗马尼亚",
       "tested": 87,
-      "healthy": 58,
-      "kept": 61,
+      "healthy": 72,
+      "kept": 75,
       "fallback": 3
     },
     "RS": {
       "name": "塞尔维亚",
       "tested": 6,
-      "healthy": 2,
-      "kept": 5,
-      "fallback": 3
+      "healthy": 4,
+      "kept": 6,
+      "fallback": 2
     },
     "RU": {
       "name": "俄罗斯",
-      "tested": 170,
-      "healthy": 24,
-      "kept": 27,
+      "tested": 173,
+      "healthy": 30,
+      "kept": 33,
       "fallback": 3
     },
     "SA": {
@@ -521,16 +521,16 @@
     },
     "SE": {
       "name": "瑞典",
-      "tested": 99,
-      "healthy": 14,
-      "kept": 17,
+      "tested": 101,
+      "healthy": 23,
+      "kept": 26,
       "fallback": 3
     },
     "SG": {
       "name": "新加坡",
-      "tested": 203,
-      "healthy": 34,
-      "kept": 37,
+      "tested": 218,
+      "healthy": 57,
+      "kept": 60,
       "fallback": 3
     },
     "SI": {
@@ -556,23 +556,23 @@
     },
     "TR": {
       "name": "土耳其",
-      "tested": 27,
-      "healthy": 2,
-      "kept": 5,
+      "tested": 35,
+      "healthy": 3,
+      "kept": 6,
       "fallback": 3
     },
     "TW": {
       "name": "台湾",
-      "tested": 53,
-      "healthy": 5,
-      "kept": 8,
+      "tested": 54,
+      "healthy": 10,
+      "kept": 13,
       "fallback": 3
     },
     "UA": {
       "name": "乌克兰",
-      "tested": 34,
-      "healthy": 1,
-      "kept": 4,
+      "tested": 33,
+      "healthy": 2,
+      "kept": 5,
       "fallback": 3
     },
     "UN": {
@@ -584,9 +584,9 @@
     },
     "US": {
       "name": "美国",
-      "tested": 1607,
-      "healthy": 350,
-      "kept": 353,
+      "tested": 1671,
+      "healthy": 453,
+      "kept": 456,
       "fallback": 3
     },
     "UZ": {
@@ -598,7 +598,7 @@
     },
     "VN": {
       "name": "越南",
-      "tested": 23,
+      "tested": 24,
       "healthy": 6,
       "kept": 9,
       "fallback": 3
