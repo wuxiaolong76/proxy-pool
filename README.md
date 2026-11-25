@@ -71,43 +71,37 @@ uv run --frozen python scripts/aggregate.py
 
 ## 上游源
 
-[freeSub](https://github.com/Ruk1ng001/freeSub) · [NoMoreWalls](https://github.com/peasoft/NoMoreWalls) · [AutoMergePublicNodes](https://github.com/chengaopan/AutoMergePublicNodes) · [zhuhaiuk/free-nodes](https://github.com/zhuhaiuk/free-nodes) · [free18](https://github.com/free18/v2ray) · [get_subscribe](https://github.com/ermaozi/get_subscribe) · [clashfree](https://github.com/free-nodes/clashfree) · [V2RayAggregator](https://github.com/mahdibland/V2RayAggregator) · [Free-servers](https://github.com/Pawdroid/Free-servers) · [0xRadikal](https://github.com/0xRadikal/Free-v2ray-Configs) · [morpheusadam](https://github.com/morpheusadam/v2ray-config) · [nodesradar](https://github.com/nodesradar/nodesradar-en) · [Free-Nodes](https://github.com/735754647/Free-Nodes) · [free-proxy-airport](https://github.com/sunmiao4458/free-proxy-airport) · [Barabama/FreeNodes](https://github.com/Barabama/FreeNodes) · [anaer/Sub](https://github.com/anaer/Sub) · [Alirewa](https://github.com/Alirewa/V2ray-Configs) · [MhdiTaheri](https://github.com/MhdiTaheri/V2rayCollector)
+默认采用质量优先的源：
 
-> 默认源优先选择近期活跃、带格式校验的来源；所有节点都必须先通过国家/地区识别，识别失败的节点不会发布。
+- [onlyactions/proxy-scanner](https://github.com/onlyactions/proxy-scanner)：真实隧道测活并验证出口 IP
+- [zueston/proxy-hub](https://github.com/zueston/proxy-hub)：真实代理测速后输出
+- [shifeiquan520/shifeiquan3](https://github.com/shifeiquan520/shifeiquan3)：自动测活
+- [snakem982/proxypool](https://github.com/snakem982/proxypool)：Proxypool 输出
+- [0xRadikal/Free-v2ray-Configs](https://github.com/0xRadikal/Free-v2ray-Configs)：多轮验证
+- [nodesradar/nodesradar-en](https://github.com/nodesradar/nodesradar-en)：每日测试
+- [735754647/Free-Nodes](https://github.com/735754647/Free-Nodes)：Mihomo 连通性测试
 
-### 可选的大池子
+所有节点都必须先通过国家/地区识别，识别失败的节点不会发布。
 
-- [Barabama/FreeNodes](https://github.com/Barabama/FreeNodes) 和 [anaer/Sub](https://github.com/anaer/Sub) 已作为候选池接入，但会经过国家过滤，不会把无法识别国家的节点直接发布。
-- [Alirewa/V2ray-Configs](https://github.com/Alirewa/V2ray-Configs) 和 [MhdiTaheri/V2rayCollector](https://github.com/MhdiTaheri/V2rayCollector)：作为补充覆盖的国家候选池接入，同样经过国家过滤。
+### 未默认接入的原始大池
+
+- [Barabama/FreeNodes](https://github.com/Barabama/FreeNodes)、[anaer/Sub](https://github.com/anaer/Sub)、[Alirewa/V2ray-Configs](https://github.com/Alirewa/V2ray-Configs)、[MhdiTaheri/V2rayCollector](https://github.com/MhdiTaheri/V2rayCollector)：原始池数量大，但未做统一质量筛选，已从默认源移除。
 - [vxiaov/free_proxies](https://github.com/vxiaov/free_proxies) 和 [awesome-vpn](https://github.com/awesome-vpn/awesome-vpn)：抽样延迟测试中超时比例很高，已从默认源移除。
-
-这些源适合继续做“候选池”。当前不再做 Mihomo 全量测活，更新速度和订阅体积会更可控。
 
 ## 当前统计
 
 <!--STATS-->
-更新于 **2026-11-25 12:06:41 北京时间**，共 **7066** 个去重节点
+更新于 **2026-11-25 12:22:44 北京时间**，共 **1668** 个去重节点
 
 | 上游源 | 节点数 |
 |---|---|
-| freeSub | 118 |
-| NoMoreWalls | 242 |
-| AutoMerge | 81 |
-| zhuhaiuk | 23 |
-| free18 | 105 |
-| ermaozi | 45 |
-| clashfree | 0 |
-| Eternity | 133 |
-| Pawdroid | 0 |
-| 0xRadikal | 618 |
-| morpheus | 1337 |
-| nodesradar | 66 |
-| 735754647 | 15 |
-| sunmiao4458 | 0 |
-| Barabama | 1426 |
-| anaer | 1440 |
-| Alirewa | 1247 |
-| MhdiTaheri | 170 |
+| onlyactions | 977 |
+| zueston | 348 |
+| shifeiquan | 90 |
+| snakem982 | 38 |
+| 0xRadikal | 169 |
+| nodesradar | 29 |
+| 735754647 | 17 |
 <!--/STATS-->
 
 ## 声明

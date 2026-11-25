@@ -583,47 +583,30 @@ def enrich_cc(merged, country_of):
 # ---------- 主流程 ----------
 
 def source_urls():
-    today = datetime.now(BJT)
-    dates = [(today - timedelta(days=i)).strftime("%Y%m%d") for i in range(2)]
     return [
-        ("freeSub", "clash",
-         ["https://raw.githubusercontent.com/Ruk1ng001/freeSub/main/clash.yaml"]),
-        ("NoMoreWalls", "clash",
-         ["https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.meta.yml"]),
-        ("AutoMerge", "clash",
-         ["https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.meta.yml"]),
-        ("zhuhaiuk", "clash",
-         ["https://raw.githubusercontent.com/zhuhaiuk/free-nodes/main/clash_config.yaml"]),
-        ("free18", "clash",
-         ["https://raw.githubusercontent.com/free18/v2ray/refs/heads/main/c.yaml"]),
-        ("ermaozi", "clash",
-         ["https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/clash.yml"]),
-        ("clashfree", "clash",
-         [f"https://raw.githubusercontent.com/free-nodes/clashfree/main/clash{d}.yml" for d in dates]),
-        ("Eternity", "clash",
-         ["https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity.yml"]),
-        ("Pawdroid", "share",
-         ["https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub"]),
-        # Additional candidate pools for broader country coverage.
+        # Quality-first sources with their own real connectivity checks.
+        ("onlyactions", "share",
+         ["https://cdn.jsdelivr.net/gh/onlyactions/proxy-scanner@main/subs/all.txt",
+          "https://raw.githubusercontent.com/onlyactions/proxy-scanner/main/subs/all.txt"]),
+        ("zueston", "clash",
+         ["https://cdn.jsdelivr.net/gh/zueston/proxy-hub@main/out/clash.yaml",
+          "https://raw.githubusercontent.com/zueston/proxy-hub/main/out/clash.yaml"]),
+        ("shifeiquan", "clash",
+         ["https://cdn.jsdelivr.net/gh/shifeiquan520/shifeiquan3@main/output/clash.yaml",
+          "https://raw.githubusercontent.com/shifeiquan520/shifeiquan3/main/output/clash.yaml"]),
+        ("snakem982", "clash",
+         ["https://cdn.jsdelivr.net/gh/snakem982/proxypool@main/source/clash-meta-2.yaml",
+          "https://raw.githubusercontent.com/snakem982/proxypool/main/source/clash-meta-2.yaml"]),
         ("0xRadikal", "share",
-         ["https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs_base64.txt"]),
-        ("morpheus", "share",
-         ["https://raw.githubusercontent.com/morpheusadam/v2ray-config/main/subs/bundles/best.txt"]),
+         ["https://cdn.jsdelivr.net/gh/0xRadikal/Free-v2ray-Configs@main/verified/configs_base64.txt",
+          "https://gh-proxy.com/raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs_base64.txt",
+          "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs_base64.txt"]),
         ("nodesradar", "clash",
          ["https://radarhub.top/clash.yaml"]),
         ("735754647", "clash",
          ["https://735754647.github.io/Free-Nodes/clash.yaml"]),
-        ("sunmiao4458", "clash",
-         ["https://sunmiao4458.github.io/free-proxy-airport/clash.yaml"]),
-        ("Barabama", "clash",
-         ["https://raw.githubusercontent.com/Barabama/FreeNodes/refs/heads/main/nodes/merged.yaml"]),
-        ("anaer", "clash",
-         ["https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml"]),
-        ("Alirewa", "share",
-         ["https://raw.githubusercontent.com/Alirewa/V2ray-Configs/main/config.txt"]),
-        ("MhdiTaheri", "share",
-         ["https://raw.githubusercontent.com/MhdiTaheri/V2rayCollector/main/sub/mix"]),
     ]
+
 
 def main():
     merged, stats, seen = [], {}, set()
