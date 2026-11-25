@@ -5,7 +5,9 @@ import ipaddress
 import json
 import os
 import re
+import shutil
 import socket
+import subprocess
 import sys
 import tempfile
 import time
@@ -19,6 +21,18 @@ import yaml
 sys.stdout.reconfigure(encoding="utf-8")
 BJT = timezone(timedelta(hours=8))
 UA = {"User-Agent": "Mozilla/5.0 (proxy-pool aggregator)"}
+
+
+class QuotedStringDumper(yaml.SafeDumper):
+    """Quote numeric-looking strings so Mihomo does not parse them as numbers."""
+
+
+def _represent_string(dumper, data):
+    style = "'" if re.fullmatch(r"[0-9]+", data) else None
+    return dumper.represent_scalar("tag:yaml.org,2002:str", data, style=style)
+
+
+QuotedStringDumper.add_representer(str, _represent_string)
 
 # ---------- 抓取 ----------
 
@@ -514,6 +528,147 @@ def enrich_cc(merged, country_of):
         except OSError:
             pass
 
+
+# ---------- 真实代理测活 ----------
+
+def _free_port():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(("127.0.0.1", 0))
+        return sock.getsockname()[1]
+
+def test_proxy_health(proxies, test_url=None, timeout_ms=None, label="真实测活"):
+    """Return proxy name -> delay, or None when health checking is unavailable."""
+    if os.getenv("HEALTH_CHECK", "1") != "1":
+        print("测活已关闭，跳过真实延迟测试")
+        return None
+    binary = os.getenv("MIHOMO_BIN") or shutil.which("mihomo")
+    if not binary or not os.path.exists(binary):
+        print("未找到 Mihomo，跳过真实延迟测试")
+        return None
+
+    tmpdir = tempfile.mkdtemp(prefix="proxy-pool-health-")
+    config_path = os.path.join(tmpdir, "config.yaml")
+    log_path = os.path.join(tmpdir, "mihomo.log")
+    controller_port = _free_port()
+    mixed_port = _free_port()
+    secret = f"health-{os.getpid()}"
+    headers = {"Authorization": f"Bearer {secret}"}
+    base = f"http://127.0.0.1:{controller_port}"
+    timeout_ms = timeout_ms or int(os.getenv("HEALTH_TIMEOUT_MS", "4000"))
+    workers = int(os.getenv("HEALTH_WORKERS", "32"))
+    test_url = test_url or os.getenv("HEALTH_URL", "https://www.gstatic.com/generate_204")
+
+    config = {
+        "mixed-port": mixed_port,
+        "allow-lan": False,
+        "mode": "rule",
+        "log-level": "warning",
+        "ipv6": False,
+        "external-controller": f"127.0.0.1:{controller_port}",
+        "secret": secret,
+        "proxies": proxies,
+        "rules": ["MATCH,DIRECT"],
+    }
+    with open(config_path, "w", encoding="utf-8") as f:
+        yaml.dump(config, f, Dumper=QuotedStringDumper, allow_unicode=True, sort_keys=False)
+
+    log = open(log_path, "w", encoding="utf-8")
+    proc = subprocess.Popen(
+        [binary, "-d", tmpdir, "-f", config_path],
+        stdout=log,
+        stderr=subprocess.STDOUT,
+    )
+    try:
+        ready = False
+        for _ in range(60):
+            if proc.poll() is not None:
+                break
+            try:
+                req = urllib.request.Request(base + "/proxies", headers=headers)
+                with urllib.request.urlopen(req, timeout=2) as response:
+                    data = json.loads(response.read() or b"{}")
+                if data.get("proxies"):
+                    ready = True
+                    break
+            except Exception:
+                pass
+            time.sleep(0.5)
+        if not ready:
+            log.flush()
+            try:
+                with open(log_path, encoding="utf-8", errors="replace") as f:
+                    print("Mihomo 启动失败: " + f.read()[-1200:])
+            except OSError:
+                pass
+            return None
+
+        def check(proxy):
+            name = proxy["name"]
+            url = (base + "/proxies/" + urllib.parse.quote(name, safe="") + "/delay?" +
+                   urllib.parse.urlencode({"url": test_url, "timeout": str(timeout_ms)}))
+            try:
+                req = urllib.request.Request(url, headers=headers)
+                with urllib.request.urlopen(req, timeout=max(5, timeout_ms / 1000 + 2)) as response:
+                    payload = json.loads(response.read() or b"{}")
+                return name, payload.get("delay")
+            except Exception:
+                return name, None
+
+        results = {}
+        with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+            futures = [pool.submit(check, p) for p in proxies]
+            for index, future in enumerate(as_completed(futures), 1):
+                name, delay = future.result()
+                results[name] = delay
+                if index % 200 == 0:
+                    print(f"  {label}进度: {index}/{len(proxies)}")
+        healthy = sum(1 for delay in results.values() if delay is not None)
+        print(f"{label}: {healthy}/{len(proxies)} 个节点通过")
+        return results
+    finally:
+        log.close()
+        if proc.poll() is None:
+            proc.terminate()
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.wait(timeout=5)
+        shutil.rmtree(tmpdir, ignore_errors=True)
+
+def filter_by_health(merged, country_of, health):
+    """Keep verified nodes per country, with a small fallback for user-network differences."""
+    if health is None:
+        return merged, {}
+    fallback_limit = int(os.getenv("HEALTH_FALLBACK", "3"))
+    by_country = {}
+    for proxy in merged:
+        by_country.setdefault(country_of[proxy["name"]], []).append(proxy)
+
+    keep_names = set()
+    report = {}
+    for cc, nodes in by_country.items():
+        healthy = [p for p in nodes if health.get(p["name"]) is not None]
+        if healthy:
+            healthy_names = {p["name"] for p in healthy}
+            fallback = [p for p in nodes if p["name"] not in healthy_names][:fallback_limit]
+            keep = healthy + fallback
+        else:
+            # The runner may be unable to reach a node that works from the user's network.
+            # Keep the raw country candidates instead of making the country disappear.
+            keep = nodes
+        keep_names.update(p["name"] for p in keep)
+        report[cc] = {
+            "tested": len(nodes),
+            "healthy": len(healthy),
+            "kept": len(keep),
+            "fallback": len(keep) - len(healthy),
+        }
+    filtered = [p for p in merged if p["name"] in keep_names]
+    print(f"测活后保留: {len(filtered)}/{len(merged)} 个节点")
+    print(f"测活覆盖: {sum(1 for r in report.values() if r['healthy'])}/{len(report)} 个国家有可用节点")
+    return filtered, report
+
 # ---------- 主流程 ----------
 
 def source_urls():
@@ -549,10 +704,14 @@ def source_urls():
          ["https://735754647.github.io/Free-Nodes/clash.yaml"]),
         ("sunmiao4458", "clash",
          ["https://sunmiao4458.github.io/free-proxy-airport/clash.yaml"]),
-        ("vxiaov", "clash",
-         ["https://raw.githubusercontent.com/vxiaov/free_proxies/main/clash/clash.provider.yaml"]),
-        ("awesome-vpn", "clash",
-         ["https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/clash.yaml"]),
+        ("Barabama", "clash",
+         ["https://raw.githubusercontent.com/Barabama/FreeNodes/refs/heads/main/nodes/merged.yaml"]),
+        ("anaer", "clash",
+         ["https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml"]),
+        ("Alirewa", "share",
+         ["https://raw.githubusercontent.com/Alirewa/V2ray-Configs/main/config.txt"]),
+        ("MhdiTaheri", "share",
+         ["https://raw.githubusercontent.com/MhdiTaheri/V2rayCollector/main/sub/mix"]),
     ]
 
 def main():
@@ -585,17 +744,48 @@ def main():
         print(f"[{tag}] 有效节点 {ok} 个（原始 {len(plist)}）")
     print(f"合计去重后节点: {len(merged)}")
 
-    names = [p["name"] for p in merged]
-
     # ---- 国家分组：名称识别 + GeoIP 补识别 ----
     country_of = {p["name"]: detect_cc(p["name"]) for p in merged}
     print(f"名称识别国别: {sum(1 for v in country_of.values() if v)}/{len(merged)}")
     enrich_cc(merged, country_of)
 
+    unknown_names = [p for p in merged if not country_of.get(p["name"])]
+    filtered_count = len(unknown_names)
+    # Keep only nodes with a resolved country; unknown nodes are not published.
+    merged = [p for p in merged if country_of.get(p["name"])]
+
+    health = test_proxy_health(merged)
+    if health is not None:
+        healthy_countries = {
+            country_of[p["name"]]
+            for p in merged
+            if health.get(p["name"]) is not None
+        }
+        retry_nodes = [
+            p for p in merged
+            if health.get(p["name"]) is None
+            and country_of[p["name"]] not in healthy_countries
+        ]
+        if retry_nodes:
+            retry = test_proxy_health(
+                retry_nodes,
+                test_url="https://www.youtube.com/generate_204",
+                timeout_ms=8000,
+                label="未覆盖国家补测",
+            )
+            if retry:
+                for name, delay in retry.items():
+                    if delay is not None:
+                        health[name] = delay
+    merged, health_report = filter_by_health(merged, country_of, health)
+    names = [p["name"] for p in merged]
+    stats = {
+        tag: sum(1 for name in names if name.startswith(f"[{tag}#"))
+        for tag in stats
+    }
     buckets = {}
     for p in merged:
         buckets.setdefault(country_of[p["name"]], []).append(p["name"])
-    unknown_names = buckets.pop(None, [])
 
     TEST_URL = "https://www.youtube.com/generate_204"
     POPULAR = ["HK", "TW", "JP", "SG", "KR", "US"]
@@ -603,7 +793,7 @@ def main():
                      key=lambda kv: (POPULAR.index(kv[0]) if kv[0] in POPULAR else 90, -len(kv[1])))
 
     def ut(gname, ns, interval=None):
-        # 差异化间隔：全局大组 300s 防测速滥用；小组更灵敏（>=100 节点 120s，否则 60s）
+        # Larger country groups use 120s; smaller groups use 60s.
         if interval is None:
             interval = 120 if len(ns) >= 100 else 60
         return {"name": gname, "type": "url-test", "url": TEST_URL,
@@ -613,30 +803,29 @@ def main():
     for cc, ns in ordered:
         country_groups.append(ut(f"{flag_of(cc)} {CC_NAME.get(cc, cc)}·{len(ns)}", ns))
     n_real_groups = len(country_groups)
-    if unknown_names:
-        country_groups.append(ut(f"🏳️ 未标注·{len(unknown_names)}", unknown_names))
 
     group_names = [g["name"] for g in country_groups]
-    fast_sources = ("0xRadikal", "nodesradar", "735754647", "sunmiao4458", "vxiaov", "awesome-vpn")
-    fast_names = [n for n in names if n.startswith(tuple(f"[{tag}#" for tag in fast_sources))]
-    # Keep the top-level menu small: country groups and the full node list are
-    # reachable through nested select groups instead of being flattened here.
-    top_entries = (["⚡ 精选最快"] if fast_names else []) + [
-        "⚡ 自动最快", "🌍 国家/地区", "🧩 全部节点", "DIRECT"
-    ]
+    # Country groups are the only proxy branches exposed to the client.
     groups = [
         {"name": "🚀 节点选择", "type": "select",
-         "proxies": top_entries},
-    ] + ([ut("⚡ 精选最快", fast_names, 120)] if fast_names else []) + [
-        ut("⚡ 自动最快", names, 300),
-        {"name": "🌍 国家/地区", "type": "select", "proxies": group_names},
-        {"name": "🧩 全部节点", "type": "select", "proxies": names},
+         "proxies": group_names + ["DIRECT"]},
     ] + country_groups
 
     top = sorted(buckets.items(), key=lambda kv: -len(kv[1]))[:10]
-    print(f"分组完成: {n_real_groups} 个国家组，未标注 {len(unknown_names)}")
-    print(f"精选节点: {len(fast_names)} 个")
+    print(f"分组完成: {n_real_groups} 个国家组")
+    print(f"已过滤未标注节点: {filtered_count} 个")
     print("国别 TOP10: " + ", ".join(f"{CC_NAME.get(cc, cc)}{len(ns)}" for cc, ns in top))
+
+    if health_report:
+        report = {
+            "generated_at": datetime.now(BJT).isoformat(),
+            "countries": {
+                cc: {"name": CC_NAME.get(cc, cc), **values}
+                for cc, values in sorted(health_report.items())
+            },
+        }
+        with open("health.json", "w", encoding="utf-8") as f:
+            json.dump(report, f, ensure_ascii=False, indent=2)
 
     clash = {
         "mixed-port": 7890,
@@ -665,7 +854,8 @@ def main():
         ],
     }
     with open("clash.yaml", "w", encoding="utf-8") as f:
-        yaml.safe_dump(clash, f, allow_unicode=True, sort_keys=False, default_flow_style=False)
+        yaml.dump(clash, f, Dumper=QuotedStringDumper, allow_unicode=True,
+                  sort_keys=False, default_flow_style=False)
 
     links, skipped = [], 0
     for p in merged:
