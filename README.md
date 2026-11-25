@@ -25,7 +25,7 @@ https://raw.githubusercontent.com/yongce-liu/proxy-pool/main/v2ray.txt
 - **🚀 节点选择**：直接按国家/地区列出所有可用节点组，不再提供精选、全池自动或平铺全部节点入口
 - **国家/地区组**：每个国家一个 url-test 组，只在该国节点内自动选择延迟最低的节点
 - **未标注节点**：无法识别国家/地区的节点会在生成订阅时直接过滤，不发布到订阅文件
-- 国别识别：优先解析节点名（国旗 emoji / 中文国名 / ISO 代码），识别失败的再用 GeoIP 按服务器 IP 归属地补识别
+- 国别识别：优先解析节点名（国旗 emoji / 中文国名 / ISO 代码），再用 MaxMind 本地库补识别，最后用 `ip.sb` / `ipinfo.io` 查询 IP 归属地
 
 策略组层级如下：
 
@@ -41,15 +41,17 @@ https://raw.githubusercontent.com/yongce-liu/proxy-pool/main/v2ray.txt
 
 国家组名称会带节点数量（例如 `🇯🇵 日本·65`），方便判断该组规模。未标注节点不会进入任何组。
 
+节点名称会统一缩短为“国旗 + 国家/地区 + 序号”，例如：
+
+```text
+🇯🇵 日本 01
+🇺🇸 美国 01
+🇺🇸 美国 02
+```
+
+不再保留原始来源前缀和长节点名，方便在客户端里查看。
+
 分流规则：内网 IP 直连 → GEOIP CN 直连 → 其余走代理。
-
-## 节点质量与覆盖
-
-- 生成订阅前先用节点名和 GeoIP 判断国家/地区，识别不出来的节点直接过滤。
-- GitHub Actions 会启动 Mihomo，对候选节点做真实代理延迟测试。
-- 某个国家有测活通过的节点时，优先保留这些节点，并额外保留少量候选节点作为不同网络的兜底。
-- 某个国家暂时没有任何节点通过测试时，会保留该国的原始候选节点，避免整个国家从订阅中消失。
-- 每次更新会生成 `health.json`，记录每个国家的测试数、通过数和最终保留数。
 
 ## 使用建议
 
@@ -71,41 +73,41 @@ uv run --frozen python scripts/aggregate.py
 
 [freeSub](https://github.com/Ruk1ng001/freeSub) · [NoMoreWalls](https://github.com/peasoft/NoMoreWalls) · [AutoMergePublicNodes](https://github.com/chengaopan/AutoMergePublicNodes) · [zhuhaiuk/free-nodes](https://github.com/zhuhaiuk/free-nodes) · [free18](https://github.com/free18/v2ray) · [get_subscribe](https://github.com/ermaozi/get_subscribe) · [clashfree](https://github.com/free-nodes/clashfree) · [V2RayAggregator](https://github.com/mahdibland/V2RayAggregator) · [Free-servers](https://github.com/Pawdroid/Free-servers) · [0xRadikal](https://github.com/0xRadikal/Free-v2ray-Configs) · [morpheusadam](https://github.com/morpheusadam/v2ray-config) · [nodesradar](https://github.com/nodesradar/nodesradar-en) · [Free-Nodes](https://github.com/735754647/Free-Nodes) · [free-proxy-airport](https://github.com/sunmiao4458/free-proxy-airport) · [Barabama/FreeNodes](https://github.com/Barabama/FreeNodes) · [anaer/Sub](https://github.com/anaer/Sub) · [Alirewa](https://github.com/Alirewa/V2ray-Configs) · [MhdiTaheri](https://github.com/MhdiTaheri/V2rayCollector)
 
-> 默认源优先选择近期活跃、带测活或格式校验的来源；Epodonios、MhdiTaheri、Alirewa、miladtahanian 等 Telegram 收集器因服务器大面积被墙未默认收录
+> 默认源优先选择近期活跃、带格式校验的来源；所有节点都必须先通过国家/地区识别，识别失败的节点不会发布。
 
 ### 可选的大池子
 
-- [Barabama/FreeNodes](https://github.com/Barabama/FreeNodes) 和 [anaer/Sub](https://github.com/anaer/Sub) 已作为候选池接入，但会经过国家过滤和 Mihomo 测活，不会把原始节点直接发布。
-- [Alirewa/V2ray-Configs](https://github.com/Alirewa/V2ray-Configs) 和 [MhdiTaheri/V2rayCollector](https://github.com/MhdiTaheri/V2rayCollector)：作为补充覆盖的国家候选池接入，仍会经过国家过滤和 Mihomo 测活。
+- [Barabama/FreeNodes](https://github.com/Barabama/FreeNodes) 和 [anaer/Sub](https://github.com/anaer/Sub) 已作为候选池接入，但会经过国家过滤，不会把无法识别国家的节点直接发布。
+- [Alirewa/V2ray-Configs](https://github.com/Alirewa/V2ray-Configs) 和 [MhdiTaheri/V2rayCollector](https://github.com/MhdiTaheri/V2rayCollector)：作为补充覆盖的国家候选池接入，同样经过国家过滤。
 - [vxiaov/free_proxies](https://github.com/vxiaov/free_proxies) 和 [awesome-vpn](https://github.com/awesome-vpn/awesome-vpn)：抽样延迟测试中超时比例很高，已从默认源移除。
 
-这些源适合继续做“候选池”，不建议直接塞进国家组。当前默认只接入带测活或格式校验的源，避免节点数量变多但实际可用率下降。
+这些源适合继续做“候选池”。当前不再做 Mihomo 全量测活，更新速度和订阅体积会更可控。
 
 ## 当前统计
 
 <!--STATS-->
-更新于 **2026-11-25 10:54:03 北京时间**，共 **2016** 个去重节点
+更新于 **2026-11-25 12:05:03 北京时间**，共 **6855** 个去重节点
 
 | 上游源 | 节点数 |
 |---|---|
 | freeSub | 108 |
-| NoMoreWalls | 198 |
-| AutoMerge | 39 |
-| zhuhaiuk | 22 |
-| free18 | 29 |
-| ermaozi | 34 |
+| NoMoreWalls | 234 |
+| AutoMerge | 81 |
+| zhuhaiuk | 27 |
+| free18 | 106 |
+| ermaozi | 45 |
 | clashfree | 0 |
-| Eternity | 106 |
-| Pawdroid | 0 |
-| 0xRadikal | 434 |
-| morpheus | 53 |
-| nodesradar | 60 |
-| 735754647 | 14 |
+| Eternity | 131 |
+| Pawdroid | 1 |
+| 0xRadikal | 558 |
+| morpheus | 1441 |
+| nodesradar | 68 |
+| 735754647 | 15 |
 | sunmiao4458 | 0 |
-| Barabama | 701 |
-| anaer | 130 |
-| Alirewa | 80 |
-| MhdiTaheri | 8 |
+| Barabama | 1404 |
+| anaer | 1440 |
+| Alirewa | 1044 |
+| MhdiTaheri | 152 |
 <!--/STATS-->
 
 ## 声明

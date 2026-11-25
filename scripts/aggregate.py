@@ -5,9 +5,7 @@ import ipaddress
 import json
 import os
 import re
-import shutil
 import socket
-import subprocess
 import sys
 import tempfile
 import time
@@ -471,203 +469,116 @@ def _resolve(host):
     except Exception:
         return None
 
+def _is_global_ip(ip):
+    try:
+        return ipaddress.ip_address(ip).is_global
+    except ValueError:
+        return False
+
+def _lookup_ip(ip):
+    """Look up one IP with ip.sb, falling back to ipinfo.io."""
+    endpoints = [
+        (f"https://api.ip.sb/geoip/{urllib.parse.quote(ip)}", "country_code"),
+        (f"https://ipinfo.io/{urllib.parse.quote(ip)}/json", "country"),
+    ]
+    for url, key in endpoints:
+        try:
+            req = urllib.request.Request(url, headers={**UA, "Accept": "application/json"})
+            with urllib.request.urlopen(req, timeout=8) as response:
+                data = json.loads(response.read() or b"{}")
+            cc = str(data.get(key) or "").upper()
+            if re.fullmatch(r"[A-Z]{2}", cc):
+                return cc
+        except Exception:
+            continue
+    return None
+
 def enrich_cc(merged, country_of):
-    """对名称识别失败的节点，按服务器 IP 归属地补识别；任何一步失败都静默跳过"""
+    """Resolve unknown countries with MaxMind first, then ip.sb/ipinfo fallback."""
     unknown = [p for p in merged if not country_of.get(p["name"])]
     if not unknown:
         return
+
+    hosts = {p["server"] for p in unknown}
+    ip_of = {h: h for h in hosts if _is_ip(h)}
+    todo = [h for h in hosts if h not in ip_of]
+    with ThreadPoolExecutor(max_workers=48) as ex:
+        futs = {ex.submit(_resolve, h): h for h in todo}
+        try:
+            for fut in as_completed(futs, timeout=90):
+                ip = fut.result()
+                if ip:
+                    ip_of[futs[fut]] = ip
+        except Exception:
+            pass
+
+    fixed_mmdb = 0
+    path = None
     try:
         import maxminddb
     except ImportError:
-        print("  maxminddb 未安装，跳过 GeoIP 补识别")
-        return
-    path = download_mmdb()
-    if not path:
-        return
-    try:
-        hosts = {p["server"] for p in unknown}
-        ip_of = {h: h for h in hosts if _is_ip(h)}
-        todo = [h for h in hosts if h not in ip_of]
-        with ThreadPoolExecutor(max_workers=48) as ex:
-            futs = {ex.submit(_resolve, h): h for h in todo}
+        maxminddb = None
+        print("  maxminddb 未安装，跳过本地 GeoIP")
+    if maxminddb:
+        path = download_mmdb()
+        if path:
             try:
-                for fut in as_completed(futs, timeout=90):
-                    ip = fut.result()
-                    if ip:
-                        ip_of[futs[fut]] = ip
-            except Exception:
-                pass
-        fixed = 0
-        with maxminddb.open_database(path) as reader:
-            for p in unknown:
-                ip = ip_of.get(p["server"])
-                if not ip:
-                    continue
+                with maxminddb.open_database(path) as reader:
+                    for p in unknown:
+                        ip = ip_of.get(p["server"])
+                        if not ip:
+                            continue
+                        try:
+                            rec = reader.get(ip)
+                        except Exception:
+                            continue
+                        # mihomo metadb returns a lowercase string or a list.
+                        if isinstance(rec, str):
+                            cc = rec
+                        elif isinstance(rec, (list, tuple)) and rec:
+                            cc = str(rec[0])
+                        elif isinstance(rec, dict):
+                            cc = ((rec.get("country") or {}).get("iso_code")
+                                  or (rec.get("registered_country") or {}).get("iso_code"))
+                        else:
+                            cc = None
+                        cc = cc.upper() if cc else None
+                        if cc and re.fullmatch(r"[A-Z]{2}", cc):
+                            country_of[p["name"]] = cc
+                            fixed_mmdb += 1
+            finally:
                 try:
-                    rec = reader.get(ip)
-                except Exception:
-                    continue
-                # mihomo metadb 返回值可能是小写字符串('kr')或列表(['us','google'])
-                if isinstance(rec, str):
-                    cc = rec
-                elif isinstance(rec, (list, tuple)) and rec:
-                    cc = str(rec[0])
-                elif isinstance(rec, dict):  # 标准 GeoLite2 格式
-                    cc = ((rec.get("country") or {}).get("iso_code")
-                          or (rec.get("registered_country") or {}).get("iso_code"))
-                else:
-                    cc = None
-                cc = cc.upper() if cc else None
-                if cc and re.fullmatch(r"[A-Z]{2}", cc):
-                    country_of[p["name"]] = cc
-                    fixed += 1
-        print(f"GeoIP 补识别成功: {fixed}/{len(unknown)}")
-    finally:
+                    os.unlink(path)
+                except OSError:
+                    pass
+    print(f"本地 GeoIP 补识别成功: {fixed_mmdb}/{len(unknown)}")
+
+    remaining = [p for p in unknown if not country_of.get(p["name"])]
+    unique_ips = sorted({
+        ip_of[p["server"]] for p in remaining
+        if p["server"] in ip_of and _is_global_ip(ip_of[p["server"]])
+    })
+    if not unique_ips:
+        return
+    cc_by_ip = {}
+    with ThreadPoolExecutor(max_workers=32) as ex:
+        futs = {ex.submit(_lookup_ip, ip): ip for ip in unique_ips}
         try:
-            os.unlink(path)
-        except OSError:
+            for fut in as_completed(futs, timeout=180):
+                ip = futs[fut]
+                cc = fut.result()
+                if cc:
+                    cc_by_ip[ip] = cc
+        except Exception:
             pass
+    fixed_api = 0
+    for p in remaining:
+        cc = cc_by_ip.get(ip_of.get(p["server"]))
+        if cc:
+            country_of[p["name"]] = cc
+            fixed_api += 1
+    print(f"ip.sb/ipinfo 补识别成功: {fixed_api}/{len(remaining)}")
 
-
-# ---------- 真实代理测活 ----------
-
-def _free_port():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.bind(("127.0.0.1", 0))
-        return sock.getsockname()[1]
-
-def test_proxy_health(proxies, test_url=None, timeout_ms=None, label="真实测活"):
-    """Return proxy name -> delay, or None when health checking is unavailable."""
-    if os.getenv("HEALTH_CHECK", "1") != "1":
-        print("测活已关闭，跳过真实延迟测试")
-        return None
-    binary = os.getenv("MIHOMO_BIN") or shutil.which("mihomo")
-    if not binary or not os.path.exists(binary):
-        print("未找到 Mihomo，跳过真实延迟测试")
-        return None
-
-    tmpdir = tempfile.mkdtemp(prefix="proxy-pool-health-")
-    config_path = os.path.join(tmpdir, "config.yaml")
-    log_path = os.path.join(tmpdir, "mihomo.log")
-    controller_port = _free_port()
-    mixed_port = _free_port()
-    secret = f"health-{os.getpid()}"
-    headers = {"Authorization": f"Bearer {secret}"}
-    base = f"http://127.0.0.1:{controller_port}"
-    timeout_ms = timeout_ms or int(os.getenv("HEALTH_TIMEOUT_MS", "4000"))
-    workers = int(os.getenv("HEALTH_WORKERS", "32"))
-    test_url = test_url or os.getenv("HEALTH_URL", "https://www.gstatic.com/generate_204")
-
-    config = {
-        "mixed-port": mixed_port,
-        "allow-lan": False,
-        "mode": "rule",
-        "log-level": "warning",
-        "ipv6": False,
-        "external-controller": f"127.0.0.1:{controller_port}",
-        "secret": secret,
-        "proxies": proxies,
-        "rules": ["MATCH,DIRECT"],
-    }
-    with open(config_path, "w", encoding="utf-8") as f:
-        yaml.dump(config, f, Dumper=QuotedStringDumper, allow_unicode=True, sort_keys=False)
-
-    log = open(log_path, "w", encoding="utf-8")
-    proc = subprocess.Popen(
-        [binary, "-d", tmpdir, "-f", config_path],
-        stdout=log,
-        stderr=subprocess.STDOUT,
-    )
-    try:
-        ready = False
-        for _ in range(60):
-            if proc.poll() is not None:
-                break
-            try:
-                req = urllib.request.Request(base + "/proxies", headers=headers)
-                with urllib.request.urlopen(req, timeout=2) as response:
-                    data = json.loads(response.read() or b"{}")
-                if data.get("proxies"):
-                    ready = True
-                    break
-            except Exception:
-                pass
-            time.sleep(0.5)
-        if not ready:
-            log.flush()
-            try:
-                with open(log_path, encoding="utf-8", errors="replace") as f:
-                    print("Mihomo 启动失败: " + f.read()[-1200:])
-            except OSError:
-                pass
-            return None
-
-        def check(proxy):
-            name = proxy["name"]
-            url = (base + "/proxies/" + urllib.parse.quote(name, safe="") + "/delay?" +
-                   urllib.parse.urlencode({"url": test_url, "timeout": str(timeout_ms)}))
-            try:
-                req = urllib.request.Request(url, headers=headers)
-                with urllib.request.urlopen(req, timeout=max(5, timeout_ms / 1000 + 2)) as response:
-                    payload = json.loads(response.read() or b"{}")
-                return name, payload.get("delay")
-            except Exception:
-                return name, None
-
-        results = {}
-        with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
-            futures = [pool.submit(check, p) for p in proxies]
-            for index, future in enumerate(as_completed(futures), 1):
-                name, delay = future.result()
-                results[name] = delay
-                if index % 200 == 0:
-                    print(f"  {label}进度: {index}/{len(proxies)}")
-        healthy = sum(1 for delay in results.values() if delay is not None)
-        print(f"{label}: {healthy}/{len(proxies)} 个节点通过")
-        return results
-    finally:
-        log.close()
-        if proc.poll() is None:
-            proc.terminate()
-            try:
-                proc.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                proc.kill()
-                proc.wait(timeout=5)
-        shutil.rmtree(tmpdir, ignore_errors=True)
-
-def filter_by_health(merged, country_of, health):
-    """Keep verified nodes per country, with a small fallback for user-network differences."""
-    if health is None:
-        return merged, {}
-    fallback_limit = int(os.getenv("HEALTH_FALLBACK", "3"))
-    by_country = {}
-    for proxy in merged:
-        by_country.setdefault(country_of[proxy["name"]], []).append(proxy)
-
-    keep_names = set()
-    report = {}
-    for cc, nodes in by_country.items():
-        healthy = [p for p in nodes if health.get(p["name"]) is not None]
-        if healthy:
-            healthy_names = {p["name"] for p in healthy}
-            fallback = [p for p in nodes if p["name"] not in healthy_names][:fallback_limit]
-            keep = healthy + fallback
-        else:
-            # The runner may be unable to reach a node that works from the user's network.
-            # Keep the raw country candidates instead of making the country disappear.
-            keep = nodes
-        keep_names.update(p["name"] for p in keep)
-        report[cc] = {
-            "tested": len(nodes),
-            "healthy": len(healthy),
-            "kept": len(keep),
-            "fallback": len(keep) - len(healthy),
-        }
-    filtered = [p for p in merged if p["name"] in keep_names]
-    print(f"测活后保留: {len(filtered)}/{len(merged)} 个节点")
-    print(f"测活覆盖: {sum(1 for r in report.values() if r['healthy'])}/{len(report)} 个国家有可用节点")
-    return filtered, report
 
 # ---------- 主流程 ----------
 
@@ -693,7 +604,7 @@ def source_urls():
          ["https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity.yml"]),
         ("Pawdroid", "share",
          ["https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub"]),
-        # Additional pools with their own freshness or connectivity checks.
+        # Additional candidate pools for broader country coverage.
         ("0xRadikal", "share",
          ["https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs_base64.txt"]),
         ("morpheus", "share",
@@ -754,43 +665,27 @@ def main():
     # Keep only nodes with a resolved country; unknown nodes are not published.
     merged = [p for p in merged if country_of.get(p["name"])]
 
-    health = test_proxy_health(merged)
-    if health is not None:
-        healthy_countries = {
-            country_of[p["name"]]
-            for p in merged
-            if health.get(p["name"]) is not None
-        }
-        retry_nodes = [
-            p for p in merged
-            if health.get(p["name"]) is None
-            and country_of[p["name"]] not in healthy_countries
-        ]
-        if retry_nodes:
-            retry = test_proxy_health(
-                retry_nodes,
-                test_url="https://www.youtube.com/generate_204",
-                timeout_ms=8000,
-                label="未覆盖国家补测",
-            )
-            if retry:
-                for name, delay in retry.items():
-                    if delay is not None:
-                        health[name] = delay
-    merged, health_report = filter_by_health(merged, country_of, health)
-    names = [p["name"] for p in merged]
     stats = {
-        tag: sum(1 for name in names if name.startswith(f"[{tag}#"))
+        tag: sum(1 for p in merged if p["name"].startswith(f"[{tag}#"))
         for tag in stats
     }
-    buckets = {}
+
+    country_buckets = {}
     for p in merged:
-        buckets.setdefault(country_of[p["name"]], []).append(p["name"])
+        country_buckets.setdefault(country_of[p["name"]], []).append(p)
 
     TEST_URL = "https://www.youtube.com/generate_204"
     POPULAR = ["HK", "TW", "JP", "SG", "KR", "US"]
-    ordered = sorted(buckets.items(),
+    ordered = sorted(country_buckets.items(),
                      key=lambda kv: (POPULAR.index(kv[0]) if kv[0] in POPULAR else 90, -len(kv[1])))
+
+    # Use short, country-prefixed names; the source tag is intentionally omitted.
+    buckets = {}
+    for cc, proxies in ordered:
+        width = max(2, len(str(len(proxies))))
+        for index, proxy in enumerate(proxies, 1):
+            proxy["name"] = f"{flag_of(cc)} {CC_NAME.get(cc, cc)} {index:0{width}d}"
+        buckets[cc] = [p["name"] for p in proxies]
 
     def ut(gname, ns, interval=None):
         # Larger country groups use 120s; smaller groups use 60s.
@@ -800,7 +695,8 @@ def main():
                 "interval": interval, "tolerance": 100, "lazy": True, "proxies": ns}
 
     country_groups = []
-    for cc, ns in ordered:
+    for cc, _ in ordered:
+        ns = buckets[cc]
         country_groups.append(ut(f"{flag_of(cc)} {CC_NAME.get(cc, cc)}·{len(ns)}", ns))
     n_real_groups = len(country_groups)
 
@@ -815,17 +711,6 @@ def main():
     print(f"分组完成: {n_real_groups} 个国家组")
     print(f"已过滤未标注节点: {filtered_count} 个")
     print("国别 TOP10: " + ", ".join(f"{CC_NAME.get(cc, cc)}{len(ns)}" for cc, ns in top))
-
-    if health_report:
-        report = {
-            "generated_at": datetime.now(BJT).isoformat(),
-            "countries": {
-                cc: {"name": CC_NAME.get(cc, cc), **values}
-                for cc, values in sorted(health_report.items())
-            },
-        }
-        with open("health.json", "w", encoding="utf-8") as f:
-            json.dump(report, f, ensure_ascii=False, indent=2)
 
     clash = {
         "mixed-port": 7890,

@@ -22,26 +22,14 @@ jobs:
       - name: Install deps
         run: uv sync --frozen
 
-      - name: Install Mihomo
-        run: |
-          mkdir -p .bin
-          curl -L --fail --retry 3 \
-            https://github.com/MetaCubeX/mihomo/releases/download/v1.19.34/mihomo-linux-amd64-compatible-v1.19.34.gz \
-            | gzip -d > .bin/mihomo
-          chmod +x .bin/mihomo
-
       - name: Aggregate nodes
-        env:
-          MIHOMO_BIN: ${{ github.workspace }}/.bin/mihomo
-          HEALTH_CHECK: "1"
-          HEALTH_TIMEOUT_MS: "6000"
         run: uv run --frozen python scripts/aggregate.py
 
       - name: Commit & push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add clash.yaml v2ray.txt README.md health.json
+          git add clash.yaml v2ray.txt README.md
           if git diff --cached --quiet; then
             echo "节点无变化，跳过提交"
           else
