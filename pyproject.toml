@@ -1,0 +1,11 @@
+[project]
+name = "proxy-pool"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "maxminddb>=3.3.0",
+    "pyyaml>=6.0.4",
+]
+
+[[tool.uv.index]]
+url = "https://pypi.org/simple"

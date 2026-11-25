@@ -158,7 +158,13 @@ def conv_ss(link):
     userinfo, hostport = body.rsplit("@", 1)
     if ":" not in userinfo:
         userinfo = b64d(userinfo)
+    if ":" not in userinfo:
+        raise ValueError("invalid ss userinfo")
     method, password = userinfo.split(":", 1)
+    method = urllib.parse.unquote(method)
+    password = urllib.parse.unquote(password)
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9+._-]*", method):
+        raise ValueError("invalid ss cipher")
     host, port = hostport.rsplit(":", 1)
     p = {"name": urllib.parse.unquote(frag) or "ss", "type": "ss",
          "server": host, "port": int(port), "cipher": method,
@@ -307,6 +313,17 @@ REQUIRED = {"ss": ["server", "port", "cipher", "password"],
             "hysteria": ["server", "port"], "tuic": ["server", "port", "uuid", "password"],
             "socks5": ["server", "port"], "http": ["server", "port"]}
 
+SS_CIPHERS = {
+    "none", "rc4-md5",
+    "aes-128-cfb", "aes-192-cfb", "aes-256-cfb",
+    "aes-128-ctr", "aes-192-ctr", "aes-256-ctr",
+    "aes-128-gcm", "aes-192-gcm", "aes-256-gcm",
+    "chacha20", "chacha20-ietf", "xchacha20",
+    "chacha20-ietf-poly1305", "xchacha20-ietf-poly1305",
+    "2022-blake3-aes-128-gcm", "2022-blake3-aes-256-gcm",
+    "2022-blake3-chacha20-poly1305",
+}
+
 def valid(p):
     t = str(p.get("type", "")).lower()
     if not all(p.get(k) not in (None, "") for k in REQUIRED.get(t, ["server", "port"])):
@@ -318,6 +335,29 @@ def valid(p):
         p["port"] = port
     except Exception:
         return False
+    if t == "ss":
+        cipher = str(p.get("cipher", ""))
+        if cipher not in SS_CIPHERS:
+            return False
+        if cipher.startswith("2022-blake3-"):
+            expected = {
+                "2022-blake3-aes-128-gcm": 16,
+                "2022-blake3-aes-256-gcm": 32,
+                "2022-blake3-chacha20-poly1305": 32,
+            }.get(cipher)
+            if expected:
+                keys = urllib.parse.unquote(str(p.get("password", ""))).split(":")
+                if not 1 <= len(keys) <= 2:
+                    return False
+                for key in keys:
+                    try:
+                        decoded = base64.b64decode(
+                            key.replace("-", "+").replace("_", "/"), validate=True
+                        )
+                    except Exception:
+                        return False
+                    if len(decoded) != expected:
+                        return False
     return True
 
 # ---------- 国家识别 ----------
@@ -498,6 +538,21 @@ def source_urls():
          ["https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity.yml"]),
         ("Pawdroid", "share",
          ["https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub"]),
+        # Additional pools with their own freshness or connectivity checks.
+        ("0xRadikal", "share",
+         ["https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs_base64.txt"]),
+        ("morpheus", "share",
+         ["https://raw.githubusercontent.com/morpheusadam/v2ray-config/main/subs/bundles/best.txt"]),
+        ("nodesradar", "clash",
+         ["https://radarhub.top/clash.yaml"]),
+        ("735754647", "clash",
+         ["https://735754647.github.io/Free-Nodes/clash.yaml"]),
+        ("sunmiao4458", "clash",
+         ["https://sunmiao4458.github.io/free-proxy-airport/clash.yaml"]),
+        ("vxiaov", "clash",
+         ["https://raw.githubusercontent.com/vxiaov/free_proxies/main/clash/clash.provider.yaml"]),
+        ("awesome-vpn", "clash",
+         ["https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/clash.yaml"]),
     ]
 
 def main():
@@ -554,26 +609,33 @@ def main():
         return {"name": gname, "type": "url-test", "url": TEST_URL,
                 "interval": interval, "tolerance": 100, "lazy": True, "proxies": ns}
 
-    country_groups, tiny = [], []
+    country_groups = []
     for cc, ns in ordered:
-        if len(ns) < 3:
-            tiny.extend(ns)
-            continue
         country_groups.append(ut(f"{flag_of(cc)} {CC_NAME.get(cc, cc)}·{len(ns)}", ns))
     n_real_groups = len(country_groups)
-    if tiny:
-        country_groups.append(ut(f"🌍 其他·{len(tiny)}", tiny))
     if unknown_names:
         country_groups.append(ut(f"🏳️ 未标注·{len(unknown_names)}", unknown_names))
 
     group_names = [g["name"] for g in country_groups]
-    groups = ([{"name": "🚀 节点选择", "type": "select",
-                "proxies": ["⚡ 自动最快"] + group_names + ["DIRECT"] + names},
-               ut("⚡ 自动最快", names, 300)]
-              + country_groups)
+    fast_sources = ("0xRadikal", "nodesradar", "735754647", "sunmiao4458", "vxiaov", "awesome-vpn")
+    fast_names = [n for n in names if n.startswith(tuple(f"[{tag}#" for tag in fast_sources))]
+    # Keep the top-level menu small: country groups and the full node list are
+    # reachable through nested select groups instead of being flattened here.
+    top_entries = (["⚡ 精选最快"] if fast_names else []) + [
+        "⚡ 自动最快", "🌍 国家/地区", "🧩 全部节点", "DIRECT"
+    ]
+    groups = [
+        {"name": "🚀 节点选择", "type": "select",
+         "proxies": top_entries},
+    ] + ([ut("⚡ 精选最快", fast_names, 120)] if fast_names else []) + [
+        ut("⚡ 自动最快", names, 300),
+        {"name": "🌍 国家/地区", "type": "select", "proxies": group_names},
+        {"name": "🧩 全部节点", "type": "select", "proxies": names},
+    ] + country_groups
 
     top = sorted(buckets.items(), key=lambda kv: -len(kv[1]))[:10]
-    print(f"分组完成: {n_real_groups} 个国家组，其他 {len(tiny)}，未标注 {len(unknown_names)}")
+    print(f"分组完成: {n_real_groups} 个国家组，未标注 {len(unknown_names)}")
+    print(f"精选节点: {len(fast_names)} 个")
     print("国别 TOP10: " + ", ".join(f"{CC_NAME.get(cc, cc)}{len(ns)}" for cc, ns in top))
 
     clash = {
