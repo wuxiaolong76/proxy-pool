@@ -86,28 +86,28 @@ uv run --frozen python scripts/aggregate.py
 ## 当前统计
 
 <!--STATS-->
-更新于 **2026-11-25 12:05:03 北京时间**，共 **6855** 个去重节点
+更新于 **2026-11-25 12:06:41 北京时间**，共 **7066** 个去重节点
 
 | 上游源 | 节点数 |
 |---|---|
-| freeSub | 108 |
-| NoMoreWalls | 234 |
+| freeSub | 118 |
+| NoMoreWalls | 242 |
 | AutoMerge | 81 |
-| zhuhaiuk | 27 |
-| free18 | 106 |
+| zhuhaiuk | 23 |
+| free18 | 105 |
 | ermaozi | 45 |
 | clashfree | 0 |
-| Eternity | 131 |
-| Pawdroid | 1 |
-| 0xRadikal | 558 |
-| morpheus | 1441 |
-| nodesradar | 68 |
+| Eternity | 133 |
+| Pawdroid | 0 |
+| 0xRadikal | 618 |
+| morpheus | 1337 |
+| nodesradar | 66 |
 | 735754647 | 15 |
 | sunmiao4458 | 0 |
-| Barabama | 1404 |
+| Barabama | 1426 |
 | anaer | 1440 |
-| Alirewa | 1044 |
-| MhdiTaheri | 152 |
+| Alirewa | 1247 |
+| MhdiTaheri | 170 |
 <!--/STATS-->
 
 ## 声明
