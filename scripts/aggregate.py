@@ -605,11 +605,29 @@ def source_urls():
          ["https://radarhub.top/clash.yaml"]),
         ("735754647", "clash",
          ["https://735754647.github.io/Free-Nodes/clash.yaml"]),
+        # Turkey-only supplements from larger raw pools.
+        ("Barabama", "clash",
+         ["https://cdn.jsdelivr.net/gh/Barabama/FreeNodes@main/nodes/merged.yaml",
+          "https://raw.githubusercontent.com/Barabama/FreeNodes/refs/heads/main/nodes/merged.yaml"]),
+        ("anaer", "clash",
+         ["https://cdn.jsdelivr.net/gh/anaer/Sub@main/clash.yaml",
+          "https://raw.githubusercontent.com/anaer/Sub/main/clash.yaml"]),
+        ("MhdiTaheri", "share",
+         ["https://cdn.jsdelivr.net/gh/MhdiTaheri/V2rayCollector@main/sub/mix",
+          "https://raw.githubusercontent.com/MhdiTaheri/V2rayCollector/main/sub/mix"]),
     ]
 
 
+SOURCE_COUNTRY_FILTERS = {
+    "Barabama": {"TR"},
+    "anaer": {"TR"},
+    "MhdiTaheri": {"TR"},
+}
+MIN_COUNTRY_NODES = 2
+
+
 def main():
-    merged, stats, seen = [], {}, set()
+    merged, stats, seen, source_of = [], {}, set(), {}
     for tag, kind, urls in source_urls():
         text = None
         for u in urls:
@@ -633,6 +651,7 @@ def main():
             ok += 1
             base = str(p.get("name") or "node").strip().replace("\n", " ")[:60]
             p["name"] = f"[{tag}#{ok:03d}] {base}"
+            source_of[p["name"]] = tag
             merged.append(p)
         stats[tag] = ok
         print(f"[{tag}] 有效节点 {ok} 个（原始 {len(plist)}）")
@@ -648,6 +667,14 @@ def main():
     # Keep only nodes with a resolved country; unknown nodes are not published.
     merged = [p for p in merged if country_of.get(p["name"])]
 
+    before_source_filter = len(merged)
+    merged = [
+        p for p in merged
+        if source_of[p["name"]] not in SOURCE_COUNTRY_FILTERS
+        or country_of[p["name"]] in SOURCE_COUNTRY_FILTERS[source_of[p["name"]]]
+    ]
+    print(f"源级国家过滤: 保留 {len(merged)}/{before_source_filter} 个节点")
+
     stats = {
         tag: sum(1 for p in merged if p["name"].startswith(f"[{tag}#"))
         for tag in stats
@@ -661,6 +688,10 @@ def main():
     POPULAR = ["HK", "TW", "JP", "SG", "KR", "US"]
     ordered = sorted(country_buckets.items(),
                      key=lambda kv: (POPULAR.index(kv[0]) if kv[0] in POPULAR else 90, -len(kv[1])))
+    small_countries = [cc for cc, proxies in ordered if len(proxies) < MIN_COUNTRY_NODES]
+    if small_countries:
+        ordered = [(cc, proxies) for cc, proxies in ordered if len(proxies) >= MIN_COUNTRY_NODES]
+        print(f"少于 {MIN_COUNTRY_NODES} 个节点的国家已隐藏: {len(small_countries)} 个")
 
     # Use short, country-prefixed names; the source tag is intentionally omitted.
     buckets = {}

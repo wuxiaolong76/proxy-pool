@@ -5422,7 +5422,8 @@ proxies:
   udp: true
   skip-cert-verify: true
   sni: xvxn1hkzf.mateflora.com
-- name: 🇦🇱 阿尔巴尼亚 01
+- name: '[onlyactions#542] #543 🇦🇱 AL | Global Connectivity AS215540 | ↓2.8 ↑1.5Mbps
+    | '
   type: vless
   server: 147.45.221.225
   port: 443
@@ -6970,7 +6971,8 @@ proxies:
   reality-opts:
     public-key: l-GzBDuNuhnjxoRlZqKvT7jAt_sbVAxhGFsAttO5kXs
     short-id: 361d0dd59c70516f
-- name: 🇹🇭 泰国 01
+- name: '[onlyactions#684] #685 🇹🇭 TH | Kaopu Cloud HK AS138915 | ↓1.2 ↑0.6Mbps |
+    119.4'
   type: vmess
   server: 119.46.51.45
   port: 37515
@@ -8226,7 +8228,7 @@ proxies:
   cipher: chacha20-ietf-poly1305
   password: k1dBOmOB4oqi7Ump37a1bQ
   udp: true
-- name: 🇲🇾 马来西亚 01
+- name: '[onlyactions#791] #792 🇲🇾 MY | Alibaba (US) AS45102 | ↓? ↑?Mbps | 47.250.135.2'
   type: vmess
   server: 47.250.135.244
   port: 10000
@@ -8584,7 +8586,8 @@ proxies:
   cipher: aes-256-gcm
   password: itzvpn@321
   udp: true
-- name: 🇳🇴 挪威 01
+- name: '[onlyactions#824] #825 🇳🇴 NO | BrainStorm Network AS136258 | ↓? ↑?Mbps |
+    185.2'
   type: ss
   server: 185.213.23.63
   port: 990
@@ -9095,7 +9098,8 @@ proxies:
   reality-opts:
     public-key: qBobe6KSNkFLqTPCffcJo0nXgxy-3JKru9WRqY9rkjk
     short-id: bb472a184677af64
-- name: 🇬🇷 希腊 01
+- name: '[onlyactions#867] #869 🇬🇷 GR | Green Floid AS8254 | ↓? ↑?Mbps | 2a12:6fc3:…
+    | '
   type: vless
   server: 85.90.197.220
   port: 443
@@ -14011,7 +14015,7 @@ proxies:
   udp: true
   skip-cert-verify: true
   sni: advanceyouremploymentskillsandcareerdevelopmenthub.com
-  name: 🇨🇱 智利 01
+  name: '[shifeiquan#025] 🇨🇱CL-01'
 - type: ss
   server: 185.135.86.175
   port: 9017
@@ -14718,7 +14722,7 @@ proxies:
   alterId: 0
   cipher: auto
   udp: true
-  name: 🇽🇽 XX 01
+  name: '[shifeiquan#082] 🇽🇽XX-01'
 - type: vless
   server: 45.192.12.92
   port: 443
@@ -16099,7 +16103,7 @@ proxies:
     public-key: xRIN4AZSp2c_yaCurN9DNoh0q8zSj-AlMCflpb1pwBA
     short-id: 00a9d4acc75cf31c
   network: xhttp
-- name: 🇪🇪 爱沙尼亚 01
+- name: '[0xRadikal#065] EE 🇪🇪 | @Raydikalx | CD07D0'
   type: vless
   server: vexlum.klyck.online
   port: 443
@@ -17913,6 +17917,196 @@ proxies:
   skip-cert-verify: true
   obfs: salamander
   obfs-password: 6fltjteoyab7fjf1
+- name: 🇹🇷 土耳其 05
+  cipher: chacha20-ietf-poly1305
+  password: lZZzfo1mqH7PqnloAogdi2XBhlgiofMy
+  port: 2089
+  server: 64.49.13.12
+  sub_tag: B007-260618
+  type: ss
+  udp: true
+- name: 🇹🇷 土耳其 06
+  cipher: chacha20-ietf-poly1305
+  password: lZZzfo1mqH7PqnloAogdi2XBhlgiofMy
+  port: 2089
+  server: tr.subscriptionservice.ir
+  sub_tag: B007-260618
+  type: ss
+  udp: true
+- name: 🇹🇷 土耳其 07
+  type: vless
+  server: 138.124.107.46
+  port: 443
+  udp: true
+  uuid: 40adcab9-ea8c-4116-a985-346191e2b4c8
+  tls: true
+  servername: tr.c2horizon.app
+  flow: xtls-rprx-vision
+  network: tcp
+  reality-opts:
+    public-key: IuvAXlAWBpeXehmEk0P-FIGTctUhny2H3UilbWWfJC0
+    short-id: 122218f4c1f172e4
+  client-fingerprint: chrome
+- name: 🇹🇷 土耳其 08
+  type: vless
+  server: 87.249.139.232
+  port: 8443
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+  tls: true
+  servername: ams1.fromblancwithlove.com
+  network: tcp
+- name: 🇹🇷 土耳其 09
+  type: vless
+  server: 87.249.139.237
+  port: 8443
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+  tls: true
+  servername: ams1.fromblancwithlove.com
+  network: tcp
+- name: 🇹🇷 土耳其 10
+  type: vmess
+  network: http
+  server: 78.111.102.232
+  port: 3389
+  uuid: 9c050a86-d612-48f1-ec32-e573df08a1b7
+  tls: false
+  alterId: 0
+  cipher: auto
+  http-opts:
+    method: GET
+    path:
+    - /
+- name: 🇹🇷 土耳其 11
+  type: vless
+  network: tcp
+  server: 195.244.41.145
+  port: 19026
+  uuid: 449c0271-91e8-4620-9c5b-843948c6a71f
+  skip-cert-verify: false
+  tls: true
+  udp: true
+  tfo: false
+- name: 🇹🇷 土耳其 12
+  type: vless
+  network: tcp
+  server: 188.132.174.14
+  port: 24
+  uuid: 7d5cdbb1-9632-483a-9b50-27932cfa9390
+  skip-cert-verify: false
+  tls: true
+  udp: true
+  tfo: false
+- name: 🇹🇷 土耳其 13
+  type: vless
+  server: turkey-ip1.mmdaqaorg.xyz
+  port: 50738
+  uuid: 56665684-5ac0-4ba9-9d49-8b258fb57974
+  udp: true
+  tls: true
+  skip-cert-verify: true
+  servername: turkey-ip1.mmdaqaorg.xyz
+  client-fingerprint: chrome
+- name: 🇹🇷 土耳其 14
+  type: vless
+  server: homestead-walloping.sports-streams.org
+  port: 443
+  uuid: 104b1415-6c4f-4bc0-9500-f813770c19ed
+  udp: true
+  tls: true
+  skip-cert-verify: true
+  servername: www.worldoftanks.com
+  client-fingerprint: chrome
+  reality-opts:
+    public-key: iQCvXMQZR-eT2MVmXP7c99cvcle22mVWuKem_345BWM
+  network: xhttp
+- name: 🇹🇷 土耳其 15
+  type: vless
+  server: 62.60.233.157
+  port: 8444
+  uuid: f55e9aba-7b14-4f6f-b59a-d5b3d45c9309
+  udp: true
+  tls: true
+  skip-cert-verify: true
+  servername: github.com
+  client-fingerprint: chrome
+  reality-opts:
+    public-key: FWitre1jinQR7qz5HQ0q2Q4Gg9xA9B0SyizCziN7Ch0
+  network: grpc
+- name: 🇹🇷 土耳其 16
+  type: vless
+  server: 77.92.151.84
+  port: 8080
+  uuid: 10664038-6dcf-44ee-af41-af68c8977aa7
+  udp: true
+  tls: true
+  skip-cert-verify: true
+  servername: sheet.google.com
+  client-fingerprint: chrome
+  reality-opts:
+    public-key: GeG5a650rtp0qIvBsbzmUx38h15bZ_u7U0v6vobzbW0
+    short-id: 3d2ccefeeb44ccbb
+  network: grpc
+- name: 🇹🇷 土耳其 17
+  type: vless
+  server: 141.98.118.70
+  port: 443
+  uuid: de64aaa6-a0ea-48d0-853b-1c3cbc7fb42c
+  udp: true
+  tls: true
+  skip-cert-verify: true
+  servername: www.google.com
+  reality-opts:
+    public-key: LjEQR0FEtsOs5eQoVsZgJX5ZI0yeadUKTCLoGD641RQ
+    short-id: '44'
+  network: xhttp
+- name: 🇹🇷 土耳其 18
+  type: vless
+  server: 45.74.178.41
+  port: 719
+  uuid: ae9bcc43-5fd8-4891-b06e-1c93e2747ed9
+  udp: true
+  network: ws
+  ws-opts:
+    path: /api/v2/xtrnwqjbkr?ed=2560
+    headers:
+      Host: play.google.com
+- name: 🇹🇷 土耳其 19
+  type: vless
+  server: 151.101.0.155
+  port: 80
+  uuid: 424c2031-1add-4063-8fc0-d57dc8358b21
+  udp: true
+  network: ws
+  ws-opts:
+    path: /de?ed=1048
+    headers:
+      Host: Yghbshup.com
+- name: 🇹🇷 土耳其 20
+  type: vless
+  server: sosooos.turbo2v.top
+  port: 16895
+  uuid: 2162d1b3-25d4-435e-b017-47da789eb389
+  udp: true
+- name: 🇹🇷 土耳其 21
+  type: vless
+  server: 185.158.151.235
+  port: 54005
+  uuid: b87e0fe3-2eaa-4714-b717-ae3204fc1846
+  udp: true
+  tls: true
+  skip-cert-verify: true
+  servername: www.cloudflare.com
+  client-fingerprint: chrome
+  reality-opts:
+    public-key: k62XkGNgUzt6z6NjQrM-zjpuUei3G62_AAIzlgxHaEA
+    short-id: ed69a523b5ab3e
+- name: 🇹🇷 土耳其 22
+  type: ss
+  server: 188.41.249.20
+  port: 1080
+  cipher: chacha20-ietf-poly1305
+  password: rYfi4cQ3z7zts7BO4-Y9_A
+  udp: true
 proxy-groups:
 - name: 🚀 节点选择
   type: select
@@ -17933,6 +18127,7 @@ proxy-groups:
   - 🇪🇸 西班牙·30
   - 🇸🇪 瑞典·26
   - 🇨🇭 瑞士·24
+  - 🇹🇷 土耳其·22
   - 🇮🇹 意大利·21
   - 🇧🇷 巴西·19
   - 🇫🇮 芬兰·16
@@ -17954,21 +18149,12 @@ proxy-groups:
   - 🇺🇦 乌克兰·4
   - 🇦🇪 阿联酋·4
   - 🇳🇬 尼日利亚·4
-  - 🇹🇷 土耳其·4
   - 🇺🇳 UN·4
   - 🇮🇷 伊朗·3
   - 🇿🇦 南非·3
   - 🇦🇹 奥地利·2
   - 🇮🇩 印尼·2
   - 🇱🇺 卢森堡·2
-  - 🇦🇱 阿尔巴尼亚·1
-  - 🇹🇭 泰国·1
-  - 🇲🇾 马来西亚·1
-  - 🇳🇴 挪威·1
-  - 🇬🇷 希腊·1
-  - 🇨🇱 智利·1
-  - 🇽🇽 XX·1
-  - 🇪🇪 爱沙尼亚·1
   - DIRECT
 - name: 🇭🇰 香港·32
   type: url-test
@@ -19547,6 +19733,35 @@ proxy-groups:
   - 🇨🇭 瑞士 22
   - 🇨🇭 瑞士 23
   - 🇨🇭 瑞士 24
+- name: 🇹🇷 土耳其·22
+  type: url-test
+  url: https://www.youtube.com/generate_204
+  interval: 60
+  tolerance: 100
+  lazy: true
+  proxies:
+  - 🇹🇷 土耳其 01
+  - 🇹🇷 土耳其 02
+  - 🇹🇷 土耳其 03
+  - 🇹🇷 土耳其 04
+  - 🇹🇷 土耳其 05
+  - 🇹🇷 土耳其 06
+  - 🇹🇷 土耳其 07
+  - 🇹🇷 土耳其 08
+  - 🇹🇷 土耳其 09
+  - 🇹🇷 土耳其 10
+  - 🇹🇷 土耳其 11
+  - 🇹🇷 土耳其 12
+  - 🇹🇷 土耳其 13
+  - 🇹🇷 土耳其 14
+  - 🇹🇷 土耳其 15
+  - 🇹🇷 土耳其 16
+  - 🇹🇷 土耳其 17
+  - 🇹🇷 土耳其 18
+  - 🇹🇷 土耳其 19
+  - 🇹🇷 土耳其 20
+  - 🇹🇷 土耳其 21
+  - 🇹🇷 土耳其 22
 - name: 🇮🇹 意大利·21
   type: url-test
   url: https://www.youtube.com/generate_204
@@ -19869,17 +20084,6 @@ proxy-groups:
   - 🇳🇬 尼日利亚 02
   - 🇳🇬 尼日利亚 03
   - 🇳🇬 尼日利亚 04
-- name: 🇹🇷 土耳其·4
-  type: url-test
-  url: https://www.youtube.com/generate_204
-  interval: 60
-  tolerance: 100
-  lazy: true
-  proxies:
-  - 🇹🇷 土耳其 01
-  - 🇹🇷 土耳其 02
-  - 🇹🇷 土耳其 03
-  - 🇹🇷 土耳其 04
 - name: 🇺🇳 UN·4
   type: url-test
   url: https://www.youtube.com/generate_204
@@ -19938,70 +20142,6 @@ proxy-groups:
   proxies:
   - 🇱🇺 卢森堡 01
   - 🇱🇺 卢森堡 02
-- name: 🇦🇱 阿尔巴尼亚·1
-  type: url-test
-  url: https://www.youtube.com/generate_204
-  interval: 60
-  tolerance: 100
-  lazy: true
-  proxies:
-  - 🇦🇱 阿尔巴尼亚 01
-- name: 🇹🇭 泰国·1
-  type: url-test
-  url: https://www.youtube.com/generate_204
-  interval: 60
-  tolerance: 100
-  lazy: true
-  proxies:
-  - 🇹🇭 泰国 01
-- name: 🇲🇾 马来西亚·1
-  type: url-test
-  url: https://www.youtube.com/generate_204
-  interval: 60
-  tolerance: 100
-  lazy: true
-  proxies:
-  - 🇲🇾 马来西亚 01
-- name: 🇳🇴 挪威·1
-  type: url-test
-  url: https://www.youtube.com/generate_204
-  interval: 60
-  tolerance: 100
-  lazy: true
-  proxies:
-  - 🇳🇴 挪威 01
-- name: 🇬🇷 希腊·1
-  type: url-test
-  url: https://www.youtube.com/generate_204
-  interval: 60
-  tolerance: 100
-  lazy: true
-  proxies:
-  - 🇬🇷 希腊 01
-- name: 🇨🇱 智利·1
-  type: url-test
-  url: https://www.youtube.com/generate_204
-  interval: 60
-  tolerance: 100
-  lazy: true
-  proxies:
-  - 🇨🇱 智利 01
-- name: 🇽🇽 XX·1
-  type: url-test
-  url: https://www.youtube.com/generate_204
-  interval: 60
-  tolerance: 100
-  lazy: true
-  proxies:
-  - 🇽🇽 XX 01
-- name: 🇪🇪 爱沙尼亚·1
-  type: url-test
-  url: https://www.youtube.com/generate_204
-  interval: 60
-  tolerance: 100
-  lazy: true
-  proxies:
-  - 🇪🇪 爱沙尼亚 01
 rules:
 - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
 - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve

@@ -80,18 +80,25 @@ uv run --frozen python scripts/aggregate.py
 - [0xRadikal/Free-v2ray-Configs](https://github.com/0xRadikal/Free-v2ray-Configs)：多轮验证
 - [nodesradar/nodesradar-en](https://github.com/nodesradar/nodesradar-en)：每日测试
 - [735754647/Free-Nodes](https://github.com/735754647/Free-Nodes)：Mihomo 连通性测试
+- 土耳其节点额外从 `anaer`、`Barabama`、`MhdiTaheri` 中单独筛选，只保留 `TR` 节点
 
 所有节点都必须先通过国家/地区识别，识别失败的节点不会发布。
 
+少于 2 个节点的国家/地区组默认隐藏，避免客户端里出现大量单节点超时组。
+
+### 土耳其补充
+
+- [Barabama/FreeNodes](https://github.com/Barabama/FreeNodes)、[anaer/Sub](https://github.com/anaer/Sub)、[MhdiTaheri/V2rayCollector](https://github.com/MhdiTaheri/V2rayCollector)：只抽取 `TR` 节点，不接入这些池子的其他国家节点。
+
 ### 未默认接入的原始大池
 
-- [Barabama/FreeNodes](https://github.com/Barabama/FreeNodes)、[anaer/Sub](https://github.com/anaer/Sub)、[Alirewa/V2ray-Configs](https://github.com/Alirewa/V2ray-Configs)、[MhdiTaheri/V2rayCollector](https://github.com/MhdiTaheri/V2rayCollector)：原始池数量大，但未做统一质量筛选，已从默认源移除。
+- [Alirewa/V2ray-Configs](https://github.com/Alirewa/V2ray-Configs)：原始池数量大，但未做统一质量筛选，已从默认源移除。
 - [vxiaov/free_proxies](https://github.com/vxiaov/free_proxies) 和 [awesome-vpn](https://github.com/awesome-vpn/awesome-vpn)：抽样延迟测试中超时比例很高，已从默认源移除。
 
 ## 当前统计
 
 <!--STATS-->
-更新于 **2026-11-25 12:25:00 北京时间**，共 **1668** 个去重节点
+更新于 **2026-11-25 12:35:10 北京时间**，共 **1686** 个去重节点
 
 | 上游源 | 节点数 |
 |---|---|
@@ -102,6 +109,9 @@ uv run --frozen python scripts/aggregate.py
 | 0xRadikal | 169 |
 | nodesradar | 29 |
 | 735754647 | 17 |
+| Barabama | 5 |
+| anaer | 3 |
+| MhdiTaheri | 10 |
 <!--/STATS-->
 
 ## 声明
