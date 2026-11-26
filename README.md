@@ -6,16 +6,16 @@
 
 | 客户端 | 订阅链接（墙内优先用镜像） |
 |---|---|
-| **Clash / Mihomo / FlClash / Clash Verge** | `https://gh-proxy.com/raw.githubusercontent.com/yongce-liu/proxy-pool/main/clash.yaml` |
-| **v2rayN / v2rayNG / Shadowrocket** | `https://gh-proxy.com/raw.githubusercontent.com/yongce-liu/proxy-pool/main/v2ray.txt` |
+| **Clash / Mihomo / FlClash / Clash Verge** | `https://gh-proxy.com/raw.githubusercontent.com/wuxiaolong76/proxy-pool/main/clash.yaml` |
+| **v2rayN / v2rayNG / Shadowrocket** | `https://gh-proxy.com/raw.githubusercontent.com/wuxiaolong76/proxy-pool/main/v2ray.txt` |
 
 **日常订阅优先使用上面的镜像链接**，尤其是 GitHub 原始地址访问不稳定时。Clash 用户只需要复制 Clash 那一行。
 
 原始地址（海外或已有代理时可用）：
 
 ```
-https://raw.githubusercontent.com/yongce-liu/proxy-pool/main/clash.yaml
-https://raw.githubusercontent.com/yongce-liu/proxy-pool/main/v2ray.txt
+https://raw.githubusercontent.com/wuxiaolong76/proxy-pool/main/clash.yaml
+https://raw.githubusercontent.com/wuxiaolong76/proxy-pool/main/v2ray.txt
 ```
 
 仓库地址：<https://github.com/yongce-liu/proxy-pool>。GitHub Actions 每 6 小时自动更新订阅文件。
