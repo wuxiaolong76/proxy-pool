@@ -98,20 +98,20 @@ uv run --frozen python scripts/aggregate.py
 ## 当前统计
 
 <!--STATS-->
-更新于 **2026-11-26 10:44:51 北京时间**，共 **1923** 个去重节点
+更新于 **2026-11-27 01:10:03 北京时间**，共 **1877** 个去重节点
 
 | 上游源 | 节点数 |
 |---|---|
-| onlyactions | 1051 |
-| zueston | 377 |
-| shifeiquan | 163 |
-| snakem982 | 50 |
-| 0xRadikal | 115 |
-| nodesradar | 28 |
-| 735754647 | 118 |
-| Barabama | 8 |
+| onlyactions | 966 |
+| zueston | 373 |
+| shifeiquan | 136 |
+| snakem982 | 41 |
+| 0xRadikal | 84 |
+| nodesradar | 26 |
+| 735754647 | 232 |
+| Barabama | 7 |
 | anaer | 3 |
-| MhdiTaheri | 10 |
+| MhdiTaheri | 9 |
 <!--/STATS-->
 
 ## 声明
