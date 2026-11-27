@@ -615,6 +615,18 @@ def source_urls():
         ("MhdiTaheri", "share",
          ["https://cdn.jsdelivr.net/gh/MhdiTaheri/V2rayCollector@main/sub/mix",
           "https://raw.githubusercontent.com/MhdiTaheri/V2rayCollector/main/sub/mix"]),
+        ("free-nodes", "share",
+         ["https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub",
+          "https://github.com/MohammadBahemmat/V2ray-Collector/blob/main/servers/hysteria2_servers.txt",
+          "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt"]),
+        ("mahdibland", "share",
+         ["https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity.txt",
+          "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/splitted/vmess.txt",
+          "https://raw.githubusercontent.com/free18/v2ray/main/v.txt"]),
+        ("barry-far", "share",
+         ["https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub1.txt",
+          "https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub2.txt",
+          "https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub3.txt"]),
     ]
 
 
